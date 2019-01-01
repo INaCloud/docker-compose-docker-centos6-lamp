@@ -1,0 +1,56 @@
+version: "2"
+services:
+  base:
+    build: ./base
+    image: takaya030/php:5.5
+    volumes:
+      - ./itworks:/webapp
+  web:
+    build: ./web
+    image: takaya030/web:5.5
+    ports:
+      - "80:80"
+    volumes_from:
+      - base
+  mysql:
+    build: ./mysql
+    image: takaya030/mysql:5.6
+    hostname: devdb1
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=dbuser
+      - MYSQL_PASSWORD=dbuser
+      - MYSQL_DATABASE=master
+    ports:
+      - "3306:3306"
+    volumes:
+      - /mnt/sda1/var/lib/mysql:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+      - PMAL_USER=dbuser
+      - PMA_PASSWORD=dbuser
+    depends_on:
+      - mysql
+    ports:
+      - "8080:80"
+    volumes:
+      - /sessions
+  memcached:
+    image: memcached:1.5-alpine
+    command: memcached -m 128
+  manage:
+    build: ./manage
+    image: takaya030/manage:5.5
+    hostname: dev-manage
+    ports:
+      - "2022:22"
+    volumes_from:
+      - base
+    volumes:
+      - ./composer:/home/docker/.composer
+    depends_on:
+        - web
+        - mysql
