@@ -8,6 +8,7 @@ services:
   web:
     build: ./web
     image: takaya030/web:5.5
+    hostname: dev-web
     ports:
       - "80:80"
     volumes_from:
