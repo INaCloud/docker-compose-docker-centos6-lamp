@@ -16,11 +16,8 @@ RUN yum install -y sudo which unzip \
 	&& yum install --enablerepo=remi,remi-php55 -y php-pecl-memcached php-pecl-xdebug \
 	&& yum clean all
 
-# modify /etc/php.ini
-RUN sed -i -e "s/;date.timezone *=.*$/date.timezone = Asia\/Tokyo/" /etc/php.ini \
-	&& sed -i -e "s/^upload_max_filesize *=.*$/upload_max_filesize = 32M/" /etc/php.ini \
-	&& sed -i -e "s/^max_file_uploads *=.*$/max_file_uploads = 128/" /etc/php.ini \
-	&& sed -i -e "s/^post_max_size *=.*$/post_max_size = 32M/" /etc/php.ini
+# php custom config
+COPY ./z-myconfig.ini /etc/php.d/z-myconfig.ini
 
 # timezone
 RUN ln -sf /usr/share/zoneinfo/Japan /etc/localtime
