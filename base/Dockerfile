@@ -13,7 +13,7 @@ RUN yum install -y sudo which unzip \
 	&& yum install --enablerepo=epel -y libmcrypt libwebp \
 	&& yum install --enablerepo=remi -y gd-last \
 	&& yum install --enablerepo=remi-php55 -y php php-devel php-gd php-mbstring php-mcrypt php-mysqlnd php-xml php-opcache \
-	&& yum install --enablerepo=remi,remi-php55 -y php-pecl-memcached \
+	&& yum install --enablerepo=remi,remi-php55 -y php-pecl-memcached php-pecl-xdebug \
 	&& yum clean all
 
 # modify /etc/php.ini
