@@ -9,11 +9,11 @@ RUN yum update -y \
 	&& sed -i -e "s/enabled *= *1/enabled=0/g" /etc/yum.repos.d/remi.repo
 
 # install packages
-RUN yum install -y sudo which unzip graphviz graphviz-gd \
+RUN yum install -y sudo which unzip \
 	&& yum install --enablerepo=epel -y libmcrypt libwebp \
 	&& yum install --enablerepo=remi -y gd-last \
 	&& yum install --enablerepo=remi-php55 -y php php-devel php-gd php-mbstring php-mcrypt php-mysqlnd php-xml php-opcache \
-	&& yum install --enablerepo=remi,remi-php55 -y php-pecl-memcached php-pecl-xhprof \
+	&& yum install --enablerepo=remi,remi-php55 -y php-pecl-memcached \
 	&& yum clean all
 
 # modify /etc/php.ini
