@@ -47,7 +47,9 @@ services:
     image: memcached:1.5-alpine
     command: memcached -m 128
   manage:
-    build: ./manage
+    build:
+      context: ./base
+      target: build-stage-manage
     image: takaya030/manage:5.5
     hostname: dev-manage
     ports:

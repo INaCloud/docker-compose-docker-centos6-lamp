@@ -46,3 +46,49 @@ COPY ./phpinfo.php /webapp/public/phpinfo.php
 EXPOSE 80
 
 CMD ["/usr/sbin/httpd","-DFOREGROUND"]
+
+
+#
+# manage image
+#
+FROM build-stage-base AS build-stage-manage
+
+# add external repos
+# install packages
+RUN yum install -y http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm \
+	&& sed -i -e "s/enabled *= *1/enabled=0/g" /etc/yum.repos.d/mysql-community.repo \
+	&& yum install -y https://centos6.iuscommunity.org/ius-release.rpm \
+	&& sed -i -e "s/enabled *= *1/enabled=0/g" /etc/yum.repos.d/ius.repo \
+	&& yum install -y openssh-server openssh-clients \
+	&& yum install --enablerepo=mysql56-community -y mysql-community-client \
+	&& yum install --enablerepo=ius -y git2u \
+	&& yum clean all
+
+# composer, phpunit
+# for git prompt
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+	&& curl -L https://phar.phpunit.de/phpunit-old.phar > /usr/local/bin/phpunit \
+	&& chmod +x /usr/local/bin/phpunit \
+	&& curl -L https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash > /etc/skel/.git-completion.bash \
+	&& curl -L https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh > /etc/skel/.git-prompt.sh 
+COPY ./bashrc /etc/skel/.bashrc
+
+# svn
+COPY ./wandisco.repo /etc/yum.repos.d/wandisco.repo
+RUN rpm --import http://opensource.wandisco.com/RPM-GPG-KEY-WANdisco \
+	&& yum install --enablerepo=wandisco-svn -y subversion \
+    && yum clean all
+
+# initialize for ssh
+RUN sed -i '/pam_loginuid\.so/s/required/optional/' /etc/pam.d/sshd \
+	&& /sbin/service sshd start \
+	&& /sbin/service sshd stop
+
+# create login user
+RUN useradd -d /home/docker -m -s /bin/bash docker \
+	&& echo docker:tcuser | chpasswd \
+	&& echo 'docker ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd","-D"]
