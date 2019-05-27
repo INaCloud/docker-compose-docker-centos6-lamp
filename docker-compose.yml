@@ -1,4 +1,4 @@
-version: "2"
+version: "3.4"
 services:
   base:
     build: ./base
@@ -11,8 +11,8 @@ services:
     hostname: dev-web
     ports:
       - "80:80"
-    volumes_from:
-      - base
+    volumes:
+      - base:/webapp
   mysql:
     build: ./mysql
     image: takaya030/mysql:5.6
@@ -48,10 +48,12 @@ services:
     hostname: dev-manage
     ports:
       - "2022:22"
-    volumes_from:
-      - base
     volumes:
+      - base:/webapp
       - ./composer:/home/docker/.composer
     depends_on:
         - web
         - mysql
+
+volumes:
+  base:
