@@ -1,4 +1,7 @@
-FROM centos:6.10
+#
+# base image
+#
+FROM centos:6.10 AS build-stage-base
 MAINTAINER takaya030
 
 # update yum, add external repos
@@ -23,3 +26,23 @@ COPY ./z-myconfig.ini /etc/php.d/z-myconfig.ini
 RUN ln -sf /usr/share/zoneinfo/Japan /etc/localtime
 
 CMD ["true"]
+
+
+#
+# web image
+#
+FROM build-stage-base AS build-stage-web
+
+# install packages
+RUN yum install -y httpd httpd-tools \
+	&& yum clean all
+
+ENV WEBAPP_ROOT /webapp
+
+COPY ./httpd.conf /etc/httpd/conf/httpd.conf
+COPY ./index.html /webapp/public/index.html
+COPY ./phpinfo.php /webapp/public/phpinfo.php
+
+EXPOSE 80
+
+CMD ["/usr/sbin/httpd","-DFOREGROUND"]

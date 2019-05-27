@@ -1,12 +1,16 @@
 version: "3.4"
 services:
   base:
-    build: ./base
+    build:
+      context: ./base
+      target: build-stage-base
     image: takaya030/php:5.5
     volumes:
       - ./itworks:/webapp
   web:
-    build: ./web
+    build:
+      context: ./base
+      target: build-stage-web
     image: takaya030/web:5.5
     hostname: dev-web
     ports:
